@@ -8,79 +8,92 @@
     {
       "cargo": "Presidente",
       "nome": "Maria Lúcia de Araujo Zebendo",
-      "data_nascimento": "07/10"
+      "data_nascimento": "07/10",
+      "foto": "image1.jpeg"
     },
     {
       "cargo": "Vice-Presidente",
       "nome": "Nilza da Cruz Oliveira",
-      "data_nascimento": "28/05"
+      "data_nascimento": "28/05",
+      "foto": "image2.jpeg"
     },
     {
       "cargo": "Secretária Executiva",
       "nome": "Joelma Daumas Braga Rocha",
-      "data_nascimento": "18/06"
+      "data_nascimento": "18/06",
+      "foto": "image3.jpeg"
     },
     {
       "cargo": "1ª Secretária",
       "nome": "Janaína Moraes Muniz Canuto",
-      "data_nascimento": "07/01"
+      "data_nascimento": "07/01",
+      "foto": "image4.png"
     },
     {
       "cargo": "2ª Secretária",
       "nome": "Pilá Rodrigues Risso de Abreu",
-      "data_nascimento": "12/12"
+      "data_nascimento": "12/12",
+      "foto": "image5.png"
     },
     {
       "cargo": "Tesoureira",
       "nome": "",
-      "data_nascimento": "28/05"
+      "data_nascimento": "28/05",
+      "foto": "image6.jpeg"
     },
     {
       "cargo": "Secretária Presbiterial",
       "nome": "Maria Fátima do Desterro Alves",
-      "data_nascimento": "14/04"
+      "data_nascimento": "14/04",
+      "foto": "image7.jpeg"
     },
     {
       "cargo": "Estatística",
       "nome": "Alzira Tavares da Silva",
       "data_nascimento": "18/11",
       "email": "alziratavares.silva@gmail.com",
-      "endereco": "Alameda Marildo Amado da Silva S/N- Granja dos Cavaleiros- Firmas, Sítio Reserva do Vale, Macaé- RJ"
+      "endereco": "Alameda Marildo Amado da Silva S/N- Granja dos Cavaleiros- Firmas, Sítio Reserva do Vale, Macaé- RJ",
+      "foto": "image8.jpeg"
     },
     {
       "cargo": "Causas da IPB e Causas Locais",
       "nome": "Lúcia Helena Oliveira de Carvalho",
       "data_nascimento": "15/02",
       "email": "luciamacae2015@gmail.com",
-      "endereco": "Rua Macapá, nº 168, Riviera Fluminense – Macaé-RJ"
+      "endereco": "Rua Macapá, nº 168, Riviera Fluminense – Macaé-RJ",
+      "foto": "image9.jpeg"
     },
     {
       "cargo": "Evangelização e Missões",
       "nome": "Joailda Rezende Fagundes",
       "data_nascimento": "12/09",
       "email": "joaildarezende@yahoo.com.br",
-      "endereco": "Ponte de Zinco- 4º Distrito- Trajano de Moraes- RJ"
+      "endereco": "Ponte de Zinco- 4º Distrito- Trajano de Moraes- RJ",
+      "foto": "image10.jpeg"
     },
     {
       "cargo": "Música",
       "nome": "Débora Souza Oliveira da Fonseca",
       "data_nascimento": "24/11",
       "email": "deborasofonseca@gmail.com",
-      "endereco": "Estrada Anderson Ferreira Filho, Bairro: Nova Cidade- Macaé – RJ, Cep: 27949-100"
+      "endereco": "Estrada Anderson Ferreira Filho, Bairro: Nova Cidade- Macaé – RJ, Cep: 27949-100",
+      "foto": "image11.jpeg"
     },
     {
       "cargo": "Comunicação para Mídia",
       "nome": "Cintia Pereira de Souza Toledo",
       "data_nascimento": "04/09",
       "email": "cintiatoledo500@gmail.com",
-      "endereco": "Av. Ricardo Muylaert Salgado Nº 901, Condomínio Vale dos Cristais, Rua interna Esmeralda 62 A"
+      "endereco": "Av. Ricardo Muylaert Salgado Nº 901, Condomínio Vale dos Cristais, Rua interna Esmeralda 62 A",
+      "foto": "image12.png"
     },
     {
       "cargo": "Espiritualidade",
       "nome": "Maria da Conceição Vianna de Azevedo",
       "data_nascimento": "08/03",
       "email": "dinhafrade1@gmail.com",
-      "endereco": "Rua Adelino José Martins nº- 856- Frade- Macaé- RJ"
+      "endereco": "Rua Adelino José Martins nº- 856- Frade- Macaé- RJ",
+      "foto": "image13.jpeg"
     }
   ],
   "safs": [
@@ -107,7 +120,8 @@
       "aniversario": {
         "data": "15/06",
         "anos": 42
-      }
+      },
+      "foto": "image14.png"
     },
     {
       "numero": 2,
@@ -131,7 +145,8 @@
       "aniversario": {
         "data": "16/04",
         "anos": 35
-      }
+      },
+      "foto": "image15.jpeg"
     },
     {
       "numero": 3,
@@ -155,7 +170,8 @@
       "aniversario": {
         "data": "05/09",
         "anos": 106
-      }
+      },
+      "foto": "image16.jpeg"
     },
     {
       "numero": 4,
@@ -180,7 +196,8 @@
       "aniversario": {
         "data": "11/02",
         "anos": 40
-      }
+      },
+      "foto": "image17.jpeg"
     },
     {
       "numero": 5,
@@ -205,7 +222,8 @@
       "aniversario": {
         "data": "06/12",
         "anos": 92
-      }
+      },
+      "foto": "image18.png"
     },
     {
       "numero": 6,
@@ -229,7 +247,8 @@
       "aniversario": {
         "data": "28/07",
         "anos": 45
-      }
+      },
+      "foto": "image19.jpeg"
     },
     {
       "numero": 7,
@@ -253,7 +272,8 @@
       "aniversario": {
         "data": "20/05",
         "anos": 65
-      }
+      },
+      "foto": "image20.jpeg"
     },
     {
       "numero": 8,
@@ -277,7 +297,8 @@
       "aniversario": {
         "data": "26/03",
         "anos": 20
-      }
+      },
+      "foto": "image21.jpeg"
     },
     {
       "numero": 9,
@@ -302,7 +323,8 @@
       "aniversario": {
         "data": "22/07",
         "anos": 81
-      }
+      },
+      "foto": "image22.jpeg"
     }
   ],
   "atividades_realizadas_2023": [

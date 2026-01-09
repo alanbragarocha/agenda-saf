@@ -1,0 +1,77 @@
+═══════════════════════════════════════════════════════════
+  INSTALAÇÃO RÁPIDA - AGENDA FEDERAÇÃO SAFs (WINDOWS)
+═══════════════════════════════════════════════════════════
+
+📋 RESUMO: Você NÃO precisa converter para C#! Python já funciona
+          perfeitamente no Windows. Basta seguir estes passos:
+
+─────────────────────────────────────────────────────────────
+  OPÇÃO 1: EXECUTAR DIRETAMENTE (MAIS SIMPLES)
+─────────────────────────────────────────────────────────────
+
+1. Instalar Python:
+   • Acesse: https://www.python.org/downloads/
+   • Baixe Python 3.8 ou superior
+   • IMPORTANTE: Marque "Add Python to PATH" durante instalação
+
+2. Executar instalação automática:
+   • Duplo clique em: setup_windows.bat
+   • Aguarde a instalação concluir
+
+3. Executar o programa:
+   • Duplo clique em: editar_agenda_gui.py
+   • OU execute no terminal: python editar_agenda_gui.py
+
+─────────────────────────────────────────────────────────────
+  OPÇÃO 2: CRIAR EXECUTÁVEL .EXE
+─────────────────────────────────────────────────────────────
+
+1. Execute setup_windows.bat primeiro (se ainda não fez)
+
+2. Execute: criar_executavel.bat
+
+3. O executável será criado em: dist\EditorAgendaSAF.exe
+
+4. COPIE o arquivo agenda_data.json para a pasta dist\
+
+5. Execute o EditorAgendaSAF.exe normalmente
+
+─────────────────────────────────────────────────────────────
+  ❓ C# É NECESSÁRIO?
+─────────────────────────────────────────────────────────────
+
+❌ NÃO! Você não precisa de C#.
+
+✅ Python já funciona perfeitamente no Windows:
+   • Interface gráfica já pronta (Tkinter)
+   • Código já está funcionando
+   • Pode criar executável .exe facilmente
+   • Funciona em Windows, Linux e Mac
+   • Muito mais simples e rápido
+
+⚠️ C# exigiria:
+   • Reescrever todo o código do zero
+   • Semanas de desenvolvimento
+   • Perderia compatibilidade com Linux/Mac
+   • Sem vantagem real para este projeto
+
+─────────────────────────────────────────────────────────────
+  🆘 PROBLEMAS COMUNS
+─────────────────────────────────────────────────────────────
+
+Problema: "Python não encontrado"
+Solução: Reinstale Python marcando "Add Python to PATH"
+
+Problema: "pip não encontrado"
+Solução: python -m pip install --upgrade pip
+
+Problema: Executável não funciona
+Solução: Certifique-se que agenda_data.json está na mesma pasta
+
+─────────────────────────────────────────────────────────────
+  📚 DOCUMENTAÇÃO COMPLETA
+─────────────────────────────────────────────────────────────
+
+Veja README_WINDOWS.md para mais detalhes!
+
+═══════════════════════════════════════════════════════════
