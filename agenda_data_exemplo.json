@@ -1,0 +1,143 @@
+{
+  "ano": 2026,
+  "presidente": {
+    "nome": "Nome da Presidente",
+    "mensagem": "Prezadas irmãs,\n\nMensagem da presidente aqui...\n\nQue este ano seja abençoado!\n\n(1Coríntios 15:58)"
+  },
+  "diretoria": [
+    {
+      "cargo": "Presidente",
+      "nome": "Nome Completo",
+      "data_nascimento": "DD/MM",
+      "email": "email@exemplo.com",
+      "endereco": "Endereço completo"
+    },
+    {
+      "cargo": "Vice-Presidente",
+      "nome": "Nome Completo",
+      "data_nascimento": "DD/MM"
+    },
+    {
+      "cargo": "Secretária Executiva",
+      "nome": "Nome Completo",
+      "data_nascimento": "DD/MM"
+    },
+    {
+      "cargo": "1ª Secretária",
+      "nome": "Nome Completo",
+      "data_nascimento": "DD/MM"
+    },
+    {
+      "cargo": "2ª Secretária",
+      "nome": "Nome Completo",
+      "data_nascimento": "DD/MM"
+    },
+    {
+      "cargo": "Tesoureira",
+      "nome": "Nome Completo",
+      "data_nascimento": "DD/MM"
+    }
+  ],
+  "safs": [
+    {
+      "numero": 1,
+      "nome": "SAF da Igreja Presbiteriana em [Nome da Cidade]",
+      "endereco": "Endereço completo da igreja",
+      "pastor": {
+        "nome": "Rev. Nome do Pastor",
+        "data_nascimento": "DD/MM"
+      },
+      "presidente": {
+        "nome": "Nome da Presidente da SAF",
+        "data_nascimento": "DD/MM",
+        "endereco": "Endereço completo",
+        "cep": "00000-000",
+        "telefone": "(XX) XXXXX-XXXX",
+        "email": "email@exemplo.com"
+      },
+      "conselheiro": {
+        "nome": "Nome do Conselheiro",
+        "data_nascimento": "DD/MM"
+      },
+      "aniversario": {
+        "data": "DD/MM",
+        "anos": 0
+      }
+    },
+    {
+      "numero": 2,
+      "nome": "SAF da Igreja Presbiteriana em [Nome da Cidade]",
+      "endereco": "Endereço completo da igreja",
+      "pastor": {
+        "nome": "Rev. Nome do Pastor",
+        "data_nascimento": "DD/MM"
+      },
+      "presidente": {
+        "nome": "Nome da Presidente da SAF",
+        "data_nascimento": "DD/MM",
+        "telefone": "(XX) XXXXX-XXXX"
+      },
+      "conselheiro": {
+        "nome": "Nome do Conselheiro",
+        "data_nascimento": "DD/MM"
+      },
+      "aniversario": {
+        "data": "DD/MM",
+        "anos": 0
+      }
+    }
+  ],
+  "atividades_realizadas_2023": [
+    {
+      "data": "DD/MM",
+      "descricao": "Descrição da atividade realizada"
+    },
+    {
+      "data": "",
+      "descricao": "Outra atividade realizada (sem data específica)"
+    }
+  ],
+  "atividades_planejadas_2024": {
+    "janeiro": [
+      {
+        "data": "DD/MM",
+        "descricao": "Descrição da atividade planejada"
+      }
+    ],
+    "fevereiro": [
+      {
+        "data": "DD/MM",
+        "descricao": "Descrição da atividade planejada"
+      }
+    ],
+    "marco": [],
+    "abril": [],
+    "maio": [],
+    "junho": [],
+    "julho": [],
+    "agosto": [],
+    "setembro": [],
+    "outubro": [],
+    "novembro": [],
+    "dezembro": []
+  },
+  "informacoes_gerais": {
+    "missionario_oracao": {
+      "nome": "Rev. Nome do Missionário",
+      "data_nascimento": "DD/MM",
+      "campo": "Nome do Campo Missionário",
+      "whatsapp": "XX-XXXXX-XXXX"
+    },
+    "observacoes": [
+      "Observação importante 1",
+      "Observação importante 2",
+      "Observação importante 3"
+    ],
+    "lema": [
+      "Linha 1 do lema",
+      "Linha 2 do lema",
+      "Linha 3 do lema",
+      "Linha 4 do lema"
+    ]
+  }
+}

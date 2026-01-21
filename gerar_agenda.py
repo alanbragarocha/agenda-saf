@@ -13,6 +13,7 @@ from datetime import datetime
 
 try:
     from docx import Document
+    from docx.enum.section import WD_SECTION
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml import OxmlElement, parse_xml
     from docx.oxml.ns import nsdecls, qn
@@ -23,6 +24,7 @@ except ImportError:
 
     subprocess.check_call(["pip", "install", "python-docx"])
     from docx import Document
+    from docx.enum.section import WD_SECTION
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml import OxmlElement, parse_xml
     from docx.oxml.ns import nsdecls, qn
@@ -330,6 +332,163 @@ def adicionar_imagem(doc, caminho_imagem, largura_base=None):
         return False
 
 
+def adicionar_capa(doc, caminho_capa):
+    """
+    Adiciona a capa na primeira página (meia folha, uma coluna, sem linha vertical).
+    """
+    if not caminho_capa:
+        return False
+
+    caminho_final = obter_caminho_imagem(caminho_capa)
+    if not caminho_final or not os.path.exists(caminho_final):
+        return False
+
+    # Configurar primeira seção para 1 coluna (meia folha) sem linha divisória
+    section = doc.sections[0]
+    configurar_colunas_secao(
+        section, num_colunas=1, espacamento=0.25, linha_divisoria=False
+    )
+    # NÃO adicionar linha vertical no header (essa página não deve ter)
+
+    # Adicionar imagem da capa alinhada à esquerda (mesmo tamanho do calendário)
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+    # Calcular tamanho IDÊNTICO ao calendário
+    # Mesmas dimensões usadas no calendário na última página
+    largura_total = Inches(11.69 - 0.8)  # Largura útil da página
+    largura_capa = Inches((largura_total.inches / 2) - 0.3)  # Igual ao calendário
+
+    run = p.add_run()
+    try:
+        # Usar exatamente a mesma largura do calendário (mantém proporção)
+        run.add_picture(caminho_final, width=largura_capa)
+    except:
+        # Se falhar, tentar novamente
+        run.add_picture(caminho_final, width=largura_capa)
+
+    return True
+
+
+def adicionar_ultima_pagina(doc, caminho_calendario):
+    """
+    Adiciona a última página com calendário à esquerda e anotações gerais à direita.
+    Sem linha vertical.
+    """
+    # Criar nova seção para a última página
+    section = doc.add_section(WD_SECTION.NEW_PAGE)
+
+    # Configurar margens
+    section.left_margin = Inches(0.4)
+    section.right_margin = Inches(0.4)
+    section.top_margin = Inches(0.4)
+    section.bottom_margin = Inches(0.4)
+
+    # NÃO configurar colunas (vamos usar tabela para layout lado a lado)
+    # NÃO adicionar linha vertical no header (essa página não deve ter)
+
+    # Criar tabela de 2 colunas: calendário à esquerda, anotações à direita
+    table = doc.add_table(rows=1, cols=2)
+    table.autofit = False
+
+    # Remover bordas da tabela
+    tbl = table._tbl
+    tblPr = tbl.tblPr if tbl.tblPr is not None else OxmlElement('w:tblPr')
+    tblBorders = OxmlElement('w:tblBorders')
+    for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+        border = OxmlElement(f'w:{border_name}')
+        border.set(qn('w:val'), 'nil')
+        tblBorders.append(border)
+    tblPr.append(tblBorders)
+    if tbl.tblPr is None:
+        tbl.insert(0, tblPr)
+
+    # Configurar larguras das colunas (50% cada)
+    cell_calendario = table.rows[0].cells[0]
+    cell_anotacoes = table.rows[0].cells[1]
+
+    largura_total = Inches(11.69 - 0.8)  # Largura útil da página
+    cell_calendario.width = Inches(largura_total.inches / 2)
+    cell_anotacoes.width = Inches(largura_total.inches / 2)
+
+    # === COLUNA ESQUERDA: CALENDÁRIO ===
+    if caminho_calendario:
+        caminho_final = obter_caminho_imagem(caminho_calendario)
+        if caminho_final and os.path.exists(caminho_final):
+            p_calendario = cell_calendario.paragraphs[0]
+            p_calendario.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            p_calendario.paragraph_format.space_before = Pt(0)
+            p_calendario.paragraph_format.space_after = Pt(0)
+
+            # Calcular tamanho para a célula esquerda (meia página)
+            # Largura da célula menos margem
+            largura_calendario = Inches((largura_total.inches / 2) - 0.3)
+            # Altura proporcional (não ocupar toda a página para não empurrar anotações)
+            altura_calendario = Inches(7.0)
+
+            run = p_calendario.add_run()
+            try:
+                # Usar largura para manter proporção correta
+                run.add_picture(caminho_final, width=largura_calendario)
+            except:
+                run.add_picture(caminho_final, width=largura_calendario)
+    else:
+        # Se não houver calendário, deixar célula esquerda vazia
+        p_vazio = cell_calendario.paragraphs[0]
+        p_vazio.clear()
+
+    # === COLUNA DIREITA: ANOTAÇÕES GERAIS ===
+    # Sempre adicionar anotações gerais, mesmo sem calendário
+    # Garantir que a célula tenha pelo menos um parágrafo
+    if len(cell_anotacoes.paragraphs) == 0:
+        cell_anotacoes.add_paragraph()
+
+    # Limpar parágrafo padrão da célula
+    p_titulo = cell_anotacoes.paragraphs[0]
+    p_titulo.clear()
+
+    # Adicionar título "Anotações gerais" (centralizado)
+    run_titulo = p_titulo.add_run("Anotações gerais")
+    run_titulo.bold = True
+    run_titulo.font.size = Pt(14)
+    run_titulo.font.name = 'Arial'
+    p_titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_titulo.paragraph_format.space_before = Pt(0)
+    p_titulo.paragraph_format.space_after = Pt(15)
+
+    # Calcular quantas linhas cabem na célula
+    altura_util_pt = (8.27 - 0.8) * 72  # Altura útil em pontos (7.47" = 537.84pt)
+    altura_usada_pt = 14 + 15  # Título (14pt) e espaçamento (15pt)
+    altura_disponivel_pt = altura_util_pt - altura_usada_pt
+
+    # Altura de cada linha (aproximadamente 20pt com espaçamento)
+    altura_linha_pt = 20
+    num_linhas = max(
+        15, int(altura_disponivel_pt / altura_linha_pt)
+    )  # Mínimo 15 linhas
+
+    # Garantir que sempre adicionamos pelo menos algumas linhas
+    if num_linhas < 15:
+        num_linhas = 25  # Mínimo de 25 linhas se o cálculo der errado
+
+    # Adicionar linhas horizontais centralizadas até o fim da célula
+    for i in range(num_linhas):
+        try:
+            p = cell_anotacoes.add_paragraph()
+            # Linha horizontal simples centralizada
+            run = p.add_run("_" * 50)  # Linha de sublinhado ajustada para meia folha
+            run.font.size = Pt(12)
+            run.font.name = 'Arial'
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER  # Centralizar linhas
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(3)
+            p.paragraph_format.line_spacing = 1.0
+        except Exception as e:
+            # Se houver erro, continuar tentando
+            print(f"Erro ao adicionar linha {i}: {e}")
+            continue
+
+
 # Variável global para armazenar o caminho do arquivo de dados
 data_file_path = 'agenda_data.json'
 
@@ -354,6 +513,22 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
     section.right_margin = Inches(0.4)
     section.top_margin = Inches(0.4)
     section.bottom_margin = Inches(0.4)
+
+    # ==================== CAPA ====================
+    # Adicionar capa na primeira página (se existir)
+    if dados.get('capa'):
+        adicionar_capa(doc, dados.get('capa'))
+        # Após a capa, criar nova seção para o conteúdo com colunas
+        section = doc.add_section(WD_SECTION.NEW_PAGE)
+        section.page_height = Inches(8.27)
+        section.page_width = Inches(11.69)
+        section.left_margin = Inches(0.4)
+        section.right_margin = Inches(0.4)
+        section.top_margin = Inches(0.4)
+        section.bottom_margin = Inches(0.4)
+    else:
+        # Se não houver capa, usar a primeira seção normalmente
+        pass
 
     # CONFIGURAR 2 COLUNAS COM LINHA DIVISÓRIA NO CENTRO
     configurar_colunas_secao(
@@ -539,6 +714,14 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
             for linha in info['lema']:
                 p = adicionar_linha(doc, linha)
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    # ==================== ÚLTIMA PÁGINA ====================
+    # Adicionar última página com calendário e anotações gerais
+    # Sempre adicionar, mesmo sem calendário
+    calendario_path = dados.get('calendario', '')
+    print(f"[DEBUG] Adicionando última página. Calendário: {calendario_path}")
+    adicionar_ultima_pagina(doc, calendario_path)
+    print(f"[DEBUG] Última página adicionada com sucesso")
 
     # Salvar documento - sempre usar o ano do JSON
     ano = dados.get('ano', 2024)

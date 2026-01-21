@@ -1,0 +1,25 @@
+COMO USAR A IMAGEM COMO ÍCONE DO PROGRAMA
+==========================================
+
+1. SALVAR A IMAGEM:
+   - Salve a imagem do logo SAF como "agenda_icon.ico" na pasta do projeto
+   - OU salve como "agenda_icon.png" e converta para .ico depois
+
+2. CONVERTER PARA .ICO (se necessário):
+   - Use um conversor online: https://convertio.co/pt/png-ico/
+   - Ou use o Paint do Windows:
+     * Abra a imagem no Paint
+     * Salve como .ico (se disponível)
+   - OU use um programa como IcoFX ou GIMP
+
+3. COLOCAR O ARQUIVO:
+   - Coloque o arquivo "agenda_icon.ico" na mesma pasta do projeto
+   - O instalador já está configurado para usar esse arquivo
+
+4. COMPILAR:
+   - Compile o instalador normalmente
+   - O ícone será usado automaticamente
+
+OBSERVAÇÃO:
+- Se você salvar como "agenda_icon.png", atualize o instalador.iss
+  mudando "agenda_icon.ico" para "agenda_icon.png" na linha SetupIconFile

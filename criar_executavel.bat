@@ -34,10 +34,20 @@ echo.
 
 REM Criar executável da GUI
 echo Criando executável da Interface Gráfica...
+
+REM Verificar se existe ícone personalizado
+set ICONE_PARAM=--icon=NONE
+if exist "agenda_icon.ico" (
+    set ICONE_PARAM=--icon=agenda_icon.ico
+    echo [OK] Usando ícone personalizado: agenda_icon.ico
+) else (
+    echo [AVISO] Ícone personalizado não encontrado. Use ícone padrão.
+)
+
 pyinstaller --name="EditorAgendaSAF" ^
     --onefile ^
     --windowed ^
-    --icon=NONE ^
+    %ICONE_PARAM% ^
     --add-data="agenda_data.json;." ^
     --add-data="gerar_agenda.py;." ^
     --add-data="gerar_com_fotos.py;." ^

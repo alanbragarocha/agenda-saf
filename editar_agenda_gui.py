@@ -246,6 +246,61 @@ class EditorAgendaGUI:
             '1.0', self.dados.get('presidente', {}).get('mensagem', '')
         )
 
+        # Separador
+        ttk.Separator(frame, orient=tk.HORIZONTAL).grid(
+            row=4, column=0, columnspan=2, sticky=tk.EW, pady=15
+        )
+
+        # Capa do Documento
+        ttk.Label(frame, text="Capa do Documento:").grid(
+            row=5, column=0, sticky=tk.W, pady=5
+        )
+        self.capa_var = tk.StringVar(value=self.dados.get('capa', ''))
+        capa_entry = ttk.Entry(frame, textvariable=self.capa_var, width=40)
+        capa_entry.grid(row=5, column=1, sticky=tk.W, pady=5)
+
+        def selecionar_capa():
+            arquivo = filedialog.askopenfilename(
+                title="Selecionar Imagem da Capa",
+                filetypes=[
+                    ("Imagens", "*.jpg *.jpeg *.png *.gif *.bmp"),
+                    ("Todos os arquivos", "*.*"),
+                ],
+            )
+            if arquivo:
+                nome_arquivo = self.copiar_foto_para_pasta_fotos(arquivo)
+                if nome_arquivo:
+                    self.capa_var.set(nome_arquivo)
+
+        ttk.Button(frame, text="Selecionar Capa", command=selecionar_capa).grid(
+            row=5, column=1, sticky=tk.E, padx=5
+        )
+
+        # Calendário (última página)
+        ttk.Label(frame, text="Calendário (última página):").grid(
+            row=6, column=0, sticky=tk.W, pady=5
+        )
+        self.calendario_var = tk.StringVar(value=self.dados.get('calendario', ''))
+        calendario_entry = ttk.Entry(frame, textvariable=self.calendario_var, width=40)
+        calendario_entry.grid(row=6, column=1, sticky=tk.W, pady=5)
+
+        def selecionar_calendario():
+            arquivo = filedialog.askopenfilename(
+                title="Selecionar Imagem do Calendário",
+                filetypes=[
+                    ("Imagens", "*.jpg *.jpeg *.png *.gif *.bmp"),
+                    ("Todos os arquivos", "*.*"),
+                ],
+            )
+            if arquivo:
+                nome_arquivo = self.copiar_foto_para_pasta_fotos(arquivo)
+                if nome_arquivo:
+                    self.calendario_var.set(nome_arquivo)
+
+        ttk.Button(
+            frame, text="Selecionar Calendário", command=selecionar_calendario
+        ).grid(row=6, column=1, sticky=tk.E, padx=5)
+
     def criar_aba_diretoria(self):
         """Cria a aba de diretoria"""
         # Frame principal com scroll
@@ -1356,6 +1411,17 @@ class EditorAgendaGUI:
         elif 'foto' in self.dados.get('presidente', {}):
             del self.dados['presidente']['foto']
 
+        # Salvar capa e calendário
+        if self.capa_var.get():
+            self.dados['capa'] = self.capa_var.get()
+        elif 'capa' in self.dados:
+            del self.dados['capa']
+
+        if self.calendario_var.get():
+            self.dados['calendario'] = self.calendario_var.get()
+        elif 'calendario' in self.dados:
+            del self.dados['calendario']
+
         # Atualizar informações gerais
         if 'informacoes_gerais' not in self.dados:
             self.dados['informacoes_gerais'] = {}
@@ -1373,18 +1439,66 @@ class EditorAgendaGUI:
             del self.dados['informacoes_gerais']['missionario_oracao']['foto']
 
         try:
-            with open(self.arquivo_atual, 'w', encoding='utf-8') as f:
-                json.dump(self.dados, f, ensure_ascii=False, indent=2)
+            # Verificar se o arquivo existe e está protegido
+            if os.path.exists(self.arquivo_atual):
+                # Tentar remover atributo read-only se existir
+                try:
+                    import stat
+
+                    os.chmod(self.arquivo_atual, stat.S_IWRITE | stat.S_IREAD)
+                except:
+                    pass
+
+            # Tentar salvar primeiro em arquivo temporário
+            temp_file = self.arquivo_atual + '.tmp'
+            try:
+                with open(temp_file, 'w', encoding='utf-8') as f:
+                    json.dump(self.dados, f, ensure_ascii=False, indent=2)
+
+                # Se salvou no temporário com sucesso, substituir o original
+                if os.path.exists(self.arquivo_atual):
+                    os.remove(self.arquivo_atual)
+                os.rename(temp_file, self.arquivo_atual)
+            except (PermissionError, OSError, IOError):
+                # Limpar arquivo temporário se existir
+                try:
+                    if os.path.exists(temp_file):
+                        os.remove(temp_file)
+                except:
+                    pass
+                # Tentar salvar diretamente (fallback)
+                with open(self.arquivo_atual, 'w', encoding='utf-8') as f:
+                    json.dump(self.dados, f, ensure_ascii=False, indent=2)
+
             messagebox.showinfo("Sucesso", f"Dados salvos em '{self.arquivo_atual}'")
             # Atualizar status
             if hasattr(self, 'status_label'):
                 self.status_label.config(
                     text=f"Salvo: {os.path.basename(self.arquivo_atual)}"
                 )
+        except (PermissionError, OSError) as e:
+            mensagem = (
+                f"Não foi possível salvar o arquivo '{self.arquivo_atual}'.\n\n"
+                f"Possíveis causas:\n"
+                f"• O arquivo está aberto em outro programa\n"
+                f"• Você não tem permissão para escrever neste local\n"
+                f"• O arquivo está protegido contra gravação\n\n"
+                f"Deseja salvar em outro local?"
+            )
+            if messagebox.askyesno("Erro de Permissão", mensagem):
+                self.salvar_como()
+            else:
+                if hasattr(self, 'status_label'):
+                    self.status_label.config(text="Erro: Permissão negada")
         except Exception as e:
-            messagebox.showerror("Erro", f"Erro ao salvar: {e}")
-            if hasattr(self, 'status_label'):
-                self.status_label.config(text=f"Erro ao salvar: {e}")
+            mensagem = (
+                f"Erro ao salvar: {e}\n\n" f"Deseja tentar salvar em outro local?"
+            )
+            if messagebox.askyesno("Erro ao Salvar", mensagem):
+                self.salvar_como()
+            else:
+                if hasattr(self, 'status_label'):
+                    self.status_label.config(text=f"Erro ao salvar: {e}")
 
     def salvar_como(self):
         arquivo = filedialog.asksaveasfilename(
@@ -1408,20 +1522,18 @@ class EditorAgendaGUI:
             ano = self.dados.get('ano', 2024)
             nome_padrao = f"Agenda {ano}.docx"
 
-            # Pedir ao usuário o nome do arquivo
-            nome_arquivo = simpledialog.askstring(
-                "Nome do Arquivo",
-                f"Digite o nome do arquivo Word:\n(Deixe em branco para usar: {nome_padrao})",
-                initialvalue=nome_padrao,
+            # Pedir ao usuário onde salvar o arquivo
+            nome_arquivo = filedialog.asksaveasfilename(
+                title="Salvar Agenda Word",
+                defaultextension=".docx",
+                filetypes=[("Documentos Word", "*.docx"), ("Todos os arquivos", "*.*")],
+                initialfile=nome_padrao,
+                initialdir=os.path.dirname(os.path.abspath(self.arquivo_atual)),
             )
 
             # Se cancelar, não fazer nada
-            if nome_arquivo is None:
+            if not nome_arquivo:
                 return
-
-            # Se deixar em branco, usar o padrão
-            if nome_arquivo.strip() == "":
-                nome_arquivo = nome_padrao
 
             # Garantir que termina com .docx
             if not nome_arquivo.endswith('.docx'):
