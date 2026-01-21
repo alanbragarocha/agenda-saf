@@ -13,8 +13,8 @@ from datetime import datetime
 try:
     from docx import Document
     from docx.enum.text import WD_ALIGN_PARAGRAPH
-    from docx.oxml import OxmlElement
-    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement, parse_xml
+    from docx.oxml.ns import nsdecls, qn
     from docx.shared import Inches, Pt, RGBColor, Twips
 except ImportError:
     print("Instalando python-docx...")
@@ -23,8 +23,8 @@ except ImportError:
     subprocess.check_call(["pip", "install", "python-docx"])
     from docx import Document
     from docx.enum.text import WD_ALIGN_PARAGRAPH
-    from docx.oxml import OxmlElement
-    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement, parse_xml
+    from docx.oxml.ns import nsdecls, qn
     from docx.shared import Inches, Pt, RGBColor, Twips
 
 
@@ -32,7 +32,7 @@ def configurar_colunas_secao(
     section, num_colunas=2, espacamento=0.3, linha_divisoria=True
 ):
     """
-    Configura a seção para ter múltiplas colunas com linha divisória.
+    Configura a seção para ter múltiplas colunas com linha divisória preta.
     """
     sectPr = section._sectPr
 
@@ -47,9 +47,63 @@ def configurar_colunas_secao(
     cols.set(qn('w:space'), str(int(espacamento * 1440)))
 
     if linha_divisoria:
+        # Ativar linha divisória (w:sep='1' cria uma linha preta entre as colunas)
         cols.set(qn('w:sep'), '1')
 
     sectPr.append(cols)
+
+
+def adicionar_linha_vertical_pagina(section):
+    """
+    Adiciona uma linha vertical preta central no header, cobrindo toda a altura da página.
+    Como está no header, aparecerá em todas as páginas automaticamente.
+    """
+
+    def _to_pt(valor):
+        """Converte para pontos"""
+        try:
+            return valor.pt
+        except Exception:
+            # python-docx usa EMU (1 pt = 12700 EMU)
+            return valor / 12700
+
+    # Dimensões da página em pontos
+    page_height_pt = _to_pt(section.page_height)
+    page_width_pt = _to_pt(section.page_width)
+    left_margin_pt = _to_pt(section.left_margin)
+    right_margin_pt = _to_pt(section.right_margin)
+
+    # Calcular posição X no centro da página
+    largura_util = page_width_pt - left_margin_pt - right_margin_pt
+    pos_x_centro = left_margin_pt + (largura_util / 2)
+
+    # Largura da linha em pontos (3pt para ficar bem visível e preta)
+    largura_linha_pt = 3
+
+    # Criar shape retangular muito fino (linha vertical preta)
+    # Usar rect ao invés de line para garantir cor preta sólida
+    shape_xml = (
+        f'<w:pict {nsdecls("w")} xmlns:v="urn:schemas-microsoft-com:vml">'
+        f'<v:rect style="position:absolute;left:{pos_x_centro - largura_linha_pt/2}pt;'
+        f'top:0pt;width:{largura_linha_pt}pt;height:{page_height_pt}pt;'
+        f'mso-position-horizontal-relative:page;'
+        f'mso-position-vertical-relative:page;'
+        f'mso-wrap-style:none;z-index:251658240" '
+        f'fillcolor="#000000" strokecolor="#000000" strokeweight="0pt"/>'
+        f'</w:pict>'
+    )
+
+    # Adicionar no header da seção (aparece em todas as páginas)
+    header = section.header
+    # Limpar parágrafos existentes do header para evitar conflitos
+    for para in header.paragraphs:
+        para.clear()
+
+    p = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
+
+    pict = parse_xml(shape_xml)
+    r = p.add_run()
+    r._r.append(pict)
 
 
 def adicionar_titulo_secao(doc, texto):
@@ -109,6 +163,117 @@ def adicionar_espaco(doc, pts=6):
     p.paragraph_format.space_before = Pt(0)
     p.paragraph_format.space_after = Pt(pts)
     return p
+
+
+def obter_caminho_imagem(caminho_imagem):
+    """Retorna o caminho absoluto da imagem se existir, senão None"""
+    if not caminho_imagem:
+        return None
+
+    if os.path.isabs(caminho_imagem):
+        if os.path.exists(caminho_imagem):
+            return caminho_imagem
+        return None
+
+    try:
+        pasta_atual = os.path.dirname(os.path.abspath(data_file_path))
+    except:
+        pasta_atual = os.path.dirname(os.path.abspath('agenda_data.json'))
+
+    pasta_fotos = os.path.join(pasta_atual, 'fotos')
+
+    caminhos_tentar = [
+        os.path.join(pasta_fotos, caminho_imagem),
+        os.path.join(pasta_atual, caminho_imagem),
+        caminho_imagem,
+    ]
+
+    for caminho in caminhos_tentar:
+        if os.path.exists(caminho):
+            return caminho
+
+    return None
+
+
+def adicionar_item_com_foto(doc, foto_path, linhas_texto, largura_foto=0.6):
+    """
+    Adiciona um item com foto à esquerda e texto à direita.
+    linhas_texto: lista de tuplas (texto, tamanho, negrito)
+    """
+    caminho_foto = obter_caminho_imagem(foto_path) if foto_path else None
+
+    if caminho_foto:
+        # Criar tabela de 2 colunas (foto | texto)
+        table = doc.add_table(rows=1, cols=2)
+        table.autofit = False
+
+        # Remover bordas da tabela
+        tbl = table._tbl
+        tblPr = tbl.tblPr if tbl.tblPr is not None else OxmlElement('w:tblPr')
+        tblBorders = OxmlElement('w:tblBorders')
+        for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+            border = OxmlElement(f'w:{border_name}')
+            border.set(qn('w:val'), 'nil')
+            tblBorders.append(border)
+        tblPr.append(tblBorders)
+        if tbl.tblPr is None:
+            tbl.insert(0, tblPr)
+
+        # Configurar larguras das colunas
+        cell_foto = table.rows[0].cells[0]
+        cell_texto = table.rows[0].cells[1]
+
+        cell_foto.width = Inches(largura_foto + 0.1)
+        cell_texto.width = Inches(4.0)
+
+        # Adicionar foto na célula esquerda
+        p_foto = cell_foto.paragraphs[0]
+        p_foto.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = p_foto.add_run()
+
+        largura = Inches(largura_foto)
+        altura = Inches(largura_foto * (4 / 3))  # Proporção 3x4
+        run.add_picture(caminho_foto, width=largura, height=altura)
+
+        # Adicionar texto na célula direita
+        first_line = True
+        for linha_info in linhas_texto:
+            if isinstance(linha_info, tuple):
+                texto, tamanho, negrito = linha_info
+            else:
+                texto, tamanho, negrito = linha_info, 12, False
+
+            if first_line:
+                p = cell_texto.paragraphs[0]
+                first_line = False
+            else:
+                p = cell_texto.add_paragraph()
+
+            run = p.add_run(texto)
+            run.font.size = Pt(tamanho)
+            run.font.name = 'Arial'
+            run.bold = negrito
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(1)
+
+        return table
+    else:
+        # Sem foto - apenas texto normal
+        for linha_info in linhas_texto:
+            if isinstance(linha_info, tuple):
+                texto, tamanho, negrito = linha_info
+            else:
+                texto, tamanho, negrito = linha_info, 12, False
+
+            p = doc.add_paragraph()
+            run = p.add_run(texto)
+            run.font.size = Pt(tamanho)
+            run.font.name = 'Arial'
+            run.bold = negrito
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(1)
+
+        return None
 
 
 def adicionar_imagem(doc, caminho_imagem, largura_base=None):
@@ -193,6 +358,8 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
     configurar_colunas_secao(
         section, num_colunas=2, espacamento=0.25, linha_divisoria=True
     )
+    # Adicionar linha vertical preta no header (aparece em todas as páginas)
+    adicionar_linha_vertical_pagina(section)
 
     # ==================== CONTEÚDO ====================
 
@@ -209,26 +376,26 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
 
     for membro in dados['diretoria']:
         if membro.get('nome'):
-            # Foto pequena
-            if membro.get('foto'):
-                adicionar_imagem(doc, membro['foto'], largura_base=Inches(0.5))
+            # Montar linhas de texto
+            linhas = []
 
             # Cargo e Nome
             cargo_nome = f"{membro['cargo']}: {membro['nome']}"
             if membro.get('data_nascimento'):
                 cargo_nome += f" (DN: {membro['data_nascimento']})"
-            adicionar_linha(doc, cargo_nome)
+            linhas.append((cargo_nome, 12, True))
 
-            # Email e endereço em uma linha (se houver)
-            detalhes = []
+            # Email e endereço
             if membro.get('email'):
-                detalhes.append(membro['email'])
+                linhas.append((f"Email: {membro['email']}", 10, False))
             if membro.get('endereco'):
-                detalhes.append(membro['endereco'])
-            if detalhes:
-                adicionar_linha(doc, " | ".join(detalhes), tamanho=10)
+                linhas.append((f"End: {membro['endereco']}", 10, False))
 
-    adicionar_espaco(doc, 8)
+            # Adicionar com foto à esquerda
+            adicionar_item_com_foto(doc, membro.get('foto'), linhas, largura_foto=0.5)
+            adicionar_espaco(doc, 2)
+
+    adicionar_espaco(doc, 6)
 
     # === SAFs ===
     adicionar_titulo_secao(doc, "II - SAFs FILIADAS")
@@ -237,12 +404,11 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
         # Título da SAF
         adicionar_subtitulo(doc, f"{saf['numero']}. {saf['nome']}")
 
-        # Foto da SAF (menor)
-        if saf.get('foto'):
-            adicionar_imagem(doc, saf['foto'], largura_base=Inches(0.6))
+        # Montar linhas de texto
+        linhas = []
 
         # Endereço
-        adicionar_linha(doc, f"End: {saf['endereco']}")
+        linhas.append((f"End: {saf['endereco']}", 11, False))
 
         # Pastor
         if saf.get('pastor') and saf['pastor'].get('nome'):
@@ -250,7 +416,7 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
             linha = f"Pastor: {pastor['nome']}"
             if pastor.get('data_nascimento'):
                 linha += f" ({pastor['data_nascimento']})"
-            adicionar_linha(doc, linha)
+            linhas.append((linha, 11, False))
 
         # Presidente
         if saf.get('presidente') and saf['presidente'].get('nome'):
@@ -258,7 +424,7 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
             linha_pres = f"Presidente: {pres['nome']}"
             if pres.get('data_nascimento'):
                 linha_pres += f" ({pres['data_nascimento']})"
-            adicionar_linha(doc, linha_pres)
+            linhas.append((linha_pres, 11, False))
 
             # Contato
             contato = []
@@ -267,7 +433,7 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
             if pres.get('email'):
                 contato.append(pres['email'])
             if contato:
-                adicionar_linha(doc, "Contato: " + " | ".join(contato), tamanho=10)
+                linhas.append(("Contato: " + " | ".join(contato), 10, False))
 
         # Conselheiro
         if saf.get('conselheiro') and saf['conselheiro'].get('nome'):
@@ -275,13 +441,17 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
             linha_cons = f"Conselheiro: {cons['nome']}"
             if cons.get('data_nascimento'):
                 linha_cons += f" ({cons['data_nascimento']})"
-            adicionar_linha(doc, linha_cons)
+            linhas.append((linha_cons, 11, False))
 
         # Aniversário
         if saf.get('aniversario'):
             aniv = saf['aniversario']
-            adicionar_linha(doc, f"Aniversário: {aniv['data']} - {aniv['anos']} anos")
+            linhas.append(
+                (f"Aniversário: {aniv['data']} - {aniv['anos']} anos", 11, False)
+            )
 
+        # Adicionar com foto à esquerda
+        adicionar_item_com_foto(doc, saf.get('foto'), linhas, largura_foto=0.6)
         adicionar_espaco(doc, 4)
 
     # === ATIVIDADES REALIZADAS ===
@@ -340,16 +510,18 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
             miss = info['missionario_oracao']
             adicionar_subtitulo(doc, "Missionário de Oração:")
 
-            if miss.get('foto'):
-                adicionar_imagem(doc, miss['foto'], largura_base=Inches(0.6))
+            linhas_miss = [
+                (
+                    f"Rev. {miss.get('nome', '')} (DN: {miss.get('data_nascimento', '')})",
+                    12,
+                    True,
+                ),
+                (f"Campo: {miss.get('campo', '')}", 11, False),
+                (f"WhatsApp: {miss.get('whatsapp', '')}", 11, False),
+            ]
 
-            adicionar_linha(
-                doc,
-                f"Rev. {miss.get('nome', '')} (DN: {miss.get('data_nascimento', '')})",
-            )
-            adicionar_linha(
-                doc,
-                f"Campo: {miss.get('campo', '')} | WhatsApp: {miss.get('whatsapp', '')}",
+            adicionar_item_com_foto(
+                doc, miss.get('foto'), linhas_miss, largura_foto=0.6
             )
             adicionar_espaco(doc, 4)
 
