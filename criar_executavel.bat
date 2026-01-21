@@ -39,6 +39,9 @@ pyinstaller --name="EditorAgendaSAF" ^
     --windowed ^
     --icon=NONE ^
     --add-data="agenda_data.json;." ^
+    --add-data="gerar_agenda.py;." ^
+    --add-data="gerar_com_fotos.py;." ^
+    --add-data="extrair_fotos.py;." ^
     --hidden-import=tkinter ^
     --hidden-import=tkinter.ttk ^
     --hidden-import=tkinter.scrolledtext ^
@@ -49,6 +52,11 @@ pyinstaller --name="EditorAgendaSAF" ^
     --hidden-import=docx.shared ^
     --hidden-import=docx.enum.text ^
     --hidden-import=docx.oxml.ns ^
+    --hidden-import=docx.oxml ^
+    --hidden-import=docx.oxml.parser ^
+    --hidden-import=PIL ^
+    --hidden-import=PIL.Image ^
+    --hidden-import=PIL.ImageTk ^
     --clean ^
     editar_agenda_gui.py
 

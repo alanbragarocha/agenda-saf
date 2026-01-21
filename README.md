@@ -1,99 +1,378 @@
-# Sistema de Automação da Agenda da Federação de SAFs
+# Editor de Agenda - Federação de SAFs
 
-Este sistema automatiza a criação e gerenciamento da agenda anual da Federação de SAFs de Macaé.
+Sistema completo para edição e geração de agendas em formato Word (.docx) com suporte a fotos, formatação profissional e layout em duas colunas.
 
-## Arquivos
+## 📋 Índice
 
-- `agenda_data.json` - Arquivo JSON com todos os dados estruturados da agenda
-- `gerar_agenda.py` - Script para gerar o documento Word a partir do JSON
-- `editar_agenda.py` - Interface de linha de comando para editar os dados
-- `editar_agenda_gui.py` - **Interface gráfica** para editar os dados (recomendado!)
-- `requirements.txt` - Dependências Python necessárias
+- [Instalação](#instalação)
+- [Uso Rápido](#uso-rápido)
+- [Interface Gráfica](#interface-gráfica)
+- [Geração de Documentos Word](#geração-de-documentos-word)
+- [Estrutura de Dados](#estrutura-de-dados)
+- [Fotos](#fotos)
+- [Criar Executável](#criar-executável)
+- [Solução de Problemas](#solução-de-problemas)
 
-## Instalação
+---
 
-1. Instale as dependências:
+## 🚀 Instalação
+
+### Windows (Recomendado)
+
+**Opção 1: Instalação Automática**
+1. Execute `instalar.bat`
+2. O instalador verificará Python, instalará dependências e configurará tudo
+
+**Opção 2: Instalação Manual**
+1. Instale Python 3.8+ de https://www.python.org/downloads/
+   - ⚠️ **IMPORTANTE**: Marque "Add Python to PATH" durante a instalação
+2. Instale dependências:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Linux/Mac
+
 ```bash
+# Instalar Python (se necessário)
+sudo apt-get install python3 python3-pip  # Ubuntu/Debian
+brew install python3                       # macOS
+
+# Instalar dependências
 pip install -r requirements.txt
 ```
 
-## Uso
+---
 
-### Gerar o documento Word
+## ⚡ Uso Rápido
 
-Para gerar a agenda em formato Word a partir do arquivo JSON:
-
-```bash
-python3 gerar_agenda.py
-```
-
-Ou especificando arquivos customizados:
+### Executar Interface Gráfica
 
 ```bash
-python3 gerar_agenda.py agenda_data.json "Agenda 2024.docx"
+python editar_agenda_gui.py
 ```
 
-### Editar os dados
+### Gerar Documento Word
 
-#### Opção 1: Interface Gráfica (Recomendado) 🎨
+**Pela Interface:**
+- Clique em "📄 Gerar Word" ou use **Ctrl+G**
+- Escolha o nome do arquivo na caixa de diálogo
+- O documento será gerado automaticamente
 
-Para uma experiência visual e intuitiva:
-
+**Pela Linha de Comando:**
 ```bash
-python3 editar_agenda_gui.py
+python gerar_agenda.py
 ```
 
-A interface gráfica oferece:
-- ✅ Visualização em tabelas e listas
-- ✅ Edição com formulários organizados
-- ✅ Abas para diferentes seções
-- ✅ Fácil adicionar/editar/remover itens
-- ✅ Geração de Word integrada
+---
 
-Veja mais detalhes em `README_GUI.md`
+## 🖥️ Interface Gráfica
 
-#### Opção 2: Interface de Linha de Comando
+A interface gráfica oferece edição visual e intuitiva de todos os dados da agenda.
 
-Para editar via terminal:
+### Funcionalidades
 
-```bash
-python3 editar_agenda.py
-```
+**6 Abas Principais:**
 
-O editor permite:
-- Editar membros da diretoria
-- Editar informações das SAFs
-- Adicionar atividades planejadas
-- Visualizar os dados em formato JSON
+1. **Informações Gerais**
+   - Ano da agenda
+   - Nome e mensagem da presidente
+   - Foto da presidente
 
-### Editar manualmente o JSON
+2. **Diretoria**
+   - Visualizar membros em tabela
+   - Adicionar/editar/remover membros
+   - Campos: cargo, nome, data nascimento, email, endereço, foto
 
-Você também pode editar diretamente o arquivo `agenda_data.json` usando qualquer editor de texto. O formato é autoexplicativo e bem estruturado.
+3. **SAFs**
+   - Visualizar todas as SAFs
+   - Adicionar/editar/remover SAFs
+   - Dados completos: endereço, pastor, presidente, conselheiro, aniversário, foto
 
-## Estrutura dos Dados
+4. **Atividades Planejadas**
+   - Organizadas por mês
+   - Adicionar/editar/remover atividades
+   - Selecionar mês no dropdown
+
+5. **Atividades Realizadas**
+   - Lista de atividades do ano anterior
+   - Adicionar/editar/remover atividades
+
+6. **Outras Informações**
+   - Missionário de Oração (nome, data nascimento, campo, WhatsApp, foto)
+   - Observações (lista editável)
+   - Lema (texto centralizado)
+
+### Atalhos de Teclado
+
+- **Ctrl+S**: Salvar alterações
+- **Ctrl+G**: Gerar documento Word
+- **Ctrl+O**: Abrir arquivo JSON diferente
+
+### Menu Arquivo
+
+- **Abrir...**: Abre um arquivo JSON diferente
+- **Salvar**: Salva alterações no arquivo atual
+- **Salvar como...**: Salva em um novo arquivo
+- **Gerar Word**: Gera o documento Word
+- **Sair**: Fecha a aplicação
+
+---
+
+## 📄 Geração de Documentos Word
+
+### Formato do Documento
+
+O documento gerado possui:
+
+- **Layout**: 2 colunas verticais com linha divisória preta central
+- **Orientação**: Paisagem (landscape)
+- **Fonte**: Arial
+  - Títulos de seção: 14pt, negrito
+  - Subtítulos: 12pt, negrito
+  - Texto normal: 12pt
+  - Detalhes: 10pt
+- **Alinhamento**: Justificado
+- **Margens**: 0.4" (todas)
+- **Fotos**: Formato 3x4, posicionadas à esquerda das informações
+
+### Nome do Arquivo
+
+- O nome do arquivo usa automaticamente o ano do JSON
+- Você pode personalizar o nome ao gerar o Word
+- Exemplo: "Agenda 2026.docx" ou "Agenda 2026 - Final.docx"
+
+---
+
+## 📊 Estrutura de Dados
 
 O arquivo `agenda_data.json` contém:
 
-- **ano**: Ano da agenda
-- **presidente**: Informações e mensagem da presidente
-- **diretoria**: Lista de membros da diretoria com cargos, nomes, datas de nascimento, emails e endereços
-- **safs**: Lista de todas as SAFs com informações completas (endereço, pastor, presidente, conselheiro, aniversário)
-- **atividades_realizadas_2023**: Lista de atividades realizadas no ano anterior
-- **atividades_planejadas_2024**: Atividades planejadas organizadas por mês
-- **informacoes_gerais**: Informações adicionais (missionário de oração, observações, lema)
+```json
+{
+  "ano": 2026,
+  "presidente": {
+    "nome": "Nome da Presidente",
+    "mensagem": "Mensagem...",
+    "foto": "foto.jpg"
+  },
+  "diretoria": [
+    {
+      "cargo": "Presidente",
+      "nome": "Nome",
+      "data_nascimento": "DD/MM",
+      "email": "email@exemplo.com",
+      "endereco": "Endereço completo",
+      "foto": "foto.jpg"
+    }
+  ],
+  "safs": [
+    {
+      "numero": 1,
+      "nome": "Nome da SAF",
+      "endereco": "Endereço",
+      "foto": "foto.jpg",
+      "pastor": {
+        "nome": "Nome do Pastor",
+        "data_nascimento": "DD/MM"
+      },
+      "presidente": {
+        "nome": "Nome",
+        "data_nascimento": "DD/MM",
+        "telefone": "(XX) XXXXX-XXXX",
+        "email": "email@exemplo.com"
+      },
+      "conselheiro": {
+        "nome": "Nome",
+        "data_nascimento": "DD/MM"
+      },
+      "aniversario": {
+        "data": "DD/MM",
+        "anos": 50
+      }
+    }
+  ],
+  "atividades_realizadas_2023": [
+    {
+      "data": "DD/MM",
+      "descricao": "Descrição da atividade"
+    }
+  ],
+  "atividades_planejadas_2024": {
+    "janeiro": [
+      {
+        "data": "DD/MM",
+        "descricao": "Descrição"
+      }
+    ]
+  },
+  "informacoes_gerais": {
+    "missionario_oracao": {
+      "nome": "Rev. Nome",
+      "data_nascimento": "DD/MM",
+      "campo": "Nome do Campo",
+      "whatsapp": "XX-XXXXX-XXXX",
+      "foto": "foto.jpg"
+    },
+    "observacoes": [
+      "Observação 1",
+      "Observação 2"
+    ],
+    "lema": [
+      "Linha 1 do lema",
+      "Linha 2 do lema"
+    ]
+  }
+}
+```
 
-## Vantagens da Automação
+---
 
-1. **Facilidade de atualização**: Basta editar o JSON e gerar novamente o documento
-2. **Consistência**: Formatação padronizada automaticamente
-3. **Versionamento**: O JSON pode ser versionado no Git
-4. **Reutilização**: Dados podem ser usados para gerar outros documentos ou relatórios
-5. **Busca e filtragem**: Fácil encontrar informações específicas no JSON
+## 📸 Fotos
 
-## Próximos Passos (Sugestões)
+### Como Adicionar Fotos
 
-- Interface web para edição
-- Geração automática de calendário
-- Exportação para PDF
-- Integração com banco de dados
-- Geração de relatórios estatísticos
+1. Na interface gráfica, ao editar um membro/SAF/missionário
+2. Clique em "Selecionar Foto"
+3. Escolha a imagem do seu computador
+4. A foto será copiada automaticamente para a pasta `fotos/`
+5. Salve o formulário
+
+### Localização
+
+- **Pasta**: `fotos/` (dentro da pasta do projeto)
+- **Formatos suportados**: JPG, PNG, GIF, BMP
+- **Tamanho recomendado**: 300x400 pixels (fotos de perfil)
+
+### Formato no Documento
+
+- **Proporção**: 3x4 (largura:altura)
+- **Posicionamento**: À esquerda das informações
+- **Redimensionamento**: Automático para manter proporção
+
+### Importante
+
+- Mantenha a pasta `fotos/` junto com o projeto
+- Fotos são opcionais - o programa funciona sem elas
+- Se mover o projeto, mova a pasta `fotos/` também
+
+---
+
+## 📦 Criar Executável (.exe)
+
+Para criar um executável standalone (não precisa de Python instalado):
+
+### Windows
+
+```bash
+criar_executavel.bat
+```
+
+O executável será criado em: `dist\EditorAgendaSAF.exe`
+
+**Importante**: Copie o arquivo `agenda_data.json` para a mesma pasta do `.exe`
+
+### Criar Instalador Profissional
+
+Se você tem Inno Setup instalado:
+
+```bash
+criar_instalador.bat
+```
+
+Escolha a opção 2 ou 3 para criar um instalador profissional.
+
+---
+
+## 🔧 Solução de Problemas
+
+### Python não encontrado
+
+- Verifique se Python está instalado: `python --version`
+- Certifique-se de que Python está no PATH
+- Reinicie o terminal após instalar Python
+
+### Erro ao instalar dependências
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt --user
+```
+
+### Erro ao gerar Word
+
+- Certifique-se de que `gerar_agenda.py` está na mesma pasta
+- Verifique se o arquivo `agenda_data.json` existe
+- Feche o documento Word se estiver aberto antes de gerar novamente
+
+### Interface não aparece (tkinter)
+
+**Windows**: Tkinter geralmente vem com Python
+
+**Linux**:
+```bash
+sudo apt-get install python3-tk  # Ubuntu/Debian
+sudo dnf install python3-tkinter  # Fedora
+```
+
+**Verificar**:
+```bash
+python -c "import tkinter; print('OK')"
+```
+
+### Fotos não aparecem no Word
+
+- Verifique se as fotos estão na pasta `fotos/`
+- Confirme que o caminho no JSON está correto
+- Certifique-se de que os arquivos de foto existem
+
+---
+
+## 📁 Estrutura de Arquivos
+
+```
+agenda-saf/
+├── agenda_data.json          # Dados principais (obrigatório)
+├── editar_agenda_gui.py      # Interface gráfica principal
+├── gerar_agenda.py           # Gerador de documentos Word
+├── extrair_fotos.py          # Extrair fotos de documentos Word
+├── requirements.txt          # Dependências Python
+├── instalar.bat              # Instalador automático (Windows)
+├── criar_executavel.bat      # Criar executável .exe
+├── criar_instalador.bat      # Criar instalador profissional
+├── instalador.iss            # Script Inno Setup
+├── setup.py                  # Instalação via pip
+├── fotos/                    # Pasta com fotos
+└── README.md                 # Este arquivo
+```
+
+---
+
+## 🎯 Requisitos
+
+- **Python**: 3.8 ou superior
+- **Dependências**:
+  - `python-docx` >= 0.8.11
+  - `Pillow` >= 10.0.0
+- **Sistema Operacional**: Windows, Linux ou macOS
+
+---
+
+## 📝 Licença
+
+Este projeto foi desenvolvido para a Federação de SAFs de Macaé.
+
+---
+
+## 💡 Dicas
+
+- ✅ Sempre salve antes de fechar a interface (Ctrl+S)
+- ✅ Faça backup do arquivo `agenda_data.json` regularmente
+- ✅ Use nomes descritivos para as fotos (ex: "presidente_maria.jpg")
+- ✅ O ano do documento é definido no campo "ano" do JSON
+- ✅ Você pode editar o JSON manualmente se preferir
+
+---
+
+**Versão**: 1.0.0  
+**Última atualização**: 2026

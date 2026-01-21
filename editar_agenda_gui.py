@@ -1404,6 +1404,29 @@ class EditorAgendaGUI:
             import subprocess
             import sys
 
+            # Obter ano do JSON
+            ano = self.dados.get('ano', 2024)
+            nome_padrao = f"Agenda {ano}.docx"
+
+            # Pedir ao usuário o nome do arquivo
+            nome_arquivo = simpledialog.askstring(
+                "Nome do Arquivo",
+                f"Digite o nome do arquivo Word:\n(Deixe em branco para usar: {nome_padrao})",
+                initialvalue=nome_padrao,
+            )
+
+            # Se cancelar, não fazer nada
+            if nome_arquivo is None:
+                return
+
+            # Se deixar em branco, usar o padrão
+            if nome_arquivo.strip() == "":
+                nome_arquivo = nome_padrao
+
+            # Garantir que termina com .docx
+            if not nome_arquivo.endswith('.docx'):
+                nome_arquivo += '.docx'
+
             # Atualizar status
             if hasattr(self, 'status_label'):
                 self.status_label.config(text="Gerando Word...")
@@ -1416,18 +1439,20 @@ class EditorAgendaGUI:
             script_dir = os.path.dirname(os.path.abspath(__file__))
             script_path = os.path.join(script_dir, 'gerar_agenda.py')
 
-            # Executar gerar_agenda.py
+            # Executar gerar_agenda.py com o nome do arquivo especificado
             result = subprocess.run(
-                [python_cmd, script_path, self.arquivo_atual],
+                [python_cmd, script_path, self.arquivo_atual, nome_arquivo],
                 check=True,
                 capture_output=True,
                 text=True,
             )
-            messagebox.showinfo("Sucesso", "Documento Word gerado com sucesso!")
+            messagebox.showinfo(
+                "Sucesso",
+                f"Documento Word gerado com sucesso!\n\nArquivo: {nome_arquivo}",
+            )
             # Atualizar status
             if hasattr(self, 'status_label'):
-                ano = self.dados.get('ano', 2024)
-                self.status_label.config(text=f"Word gerado: Agenda {ano}.docx")
+                self.status_label.config(text=f"Word gerado: {nome_arquivo}")
         except subprocess.CalledProcessError as e:
             error_msg = e.stderr if e.stderr else str(e)
             messagebox.showerror("Erro", f"Erro ao gerar Word:\n{error_msg}")

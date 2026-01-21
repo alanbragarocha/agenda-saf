@@ -8,6 +8,7 @@ Formato: Folder vertical com 2 colunas e linha divisória no centro.
 
 import json
 import os
+import re
 from datetime import datetime
 
 try:
@@ -539,9 +540,21 @@ def gerar_agenda(data_file='agenda_data.json', output_file=None):
                 p = adicionar_linha(doc, linha)
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    # Salvar documento
+    # Salvar documento - sempre usar o ano do JSON
+    ano = dados.get('ano', 2024)
+
     if output_file is None:
-        output_file = f"Agenda {dados['ano']}.docx"
+        output_file = f"Agenda {ano}.docx"
+    else:
+        # Substituir qualquer ano no nome do arquivo pelo ano do JSON
+        nome_base, ext = os.path.splitext(output_file)
+        # Remover qualquer ano existente (4 dígitos)
+        nome_base = re.sub(r'\s*\d{4}\s*', f' {ano} ', nome_base)
+        nome_base = nome_base.strip()
+        # Garantir que o ano está no nome
+        if str(ano) not in nome_base:
+            nome_base = f"{nome_base} {ano}"
+        output_file = f"{nome_base}{ext}"
 
     doc.save(output_file)
     print(f"[OK] Documento gerado com sucesso: {output_file}")
